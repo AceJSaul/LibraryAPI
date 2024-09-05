@@ -17,6 +17,8 @@ public class Book implements Serializable {
     private String book_title;
     private String description;
     private Year release_year;
+    @JsonIgnore
+    private String image_url;
 
     @ManyToOne
     @JoinColumn(name = "author_id")
@@ -26,12 +28,13 @@ public class Book implements Serializable {
     public Book() {
     }
 
-    public Book(Integer id, String book_title, String description, Year release_year, Author author) {
+    public Book(Integer id, String book_title, String description, Year release_year, Author author, String imageUrl) {
         this.id = id;
         this.book_title = book_title;
         this.description = description;
         this.release_year = release_year;
         this.author = author;
+        this.image_url = imageUrl;
     }
 
     public Integer getId() {
@@ -72,6 +75,14 @@ public class Book implements Serializable {
 
     public void setAuthor(Author author) {
         this.author = author;
+    }
+
+    public String getImage_url() {
+        return image_url;
+    }
+
+    public void setImage_url(String image_url) {
+        this.image_url = image_url;
     }
 
     @Override
