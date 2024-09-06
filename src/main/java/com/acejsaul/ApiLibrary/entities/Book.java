@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.Year;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name="books")
@@ -24,6 +24,10 @@ public class Book implements Serializable {
     @JoinColumn(name = "author_id")
     @JsonIgnore
     private Author author;
+
+    @ManyToMany(mappedBy = "favBooks")
+    @JsonIgnore
+    private Set<User> markedAsFavorite = new HashSet<>();
 
     public Book() {
     }

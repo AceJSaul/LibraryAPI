@@ -28,9 +28,6 @@ public class BookService {
             Optional<Book> optionalBook = bookRepository.findById(id);
             return optionalBook.orElseThrow();
         }
-        catch(MethodArgumentTypeMismatchException e){
-            throw new BadRequest("Input type mismatched required");
-        }
         catch (NoSuchElementException e){
             throw new ResourceNotFound("Book not found!");
         }
