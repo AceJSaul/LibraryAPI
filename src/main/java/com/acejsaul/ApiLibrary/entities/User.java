@@ -1,42 +1,69 @@
 package com.acejsaul.ApiLibrary.entities;
 
+import com.acejsaul.ApiLibrary.entities.enums.UserRole;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
-public class User implements Serializable {
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
+public class User implements Serializable, UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
     private String first_name;
     private String last_name;
-    private String email;
+    // Spring Security
+    private String login;
+    private String password;
+    private UserRole role;
 
     @ManyToMany
     @JoinTable(name = "favorite_books", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "book_id"))
-    private Set<Book> favBooks = new HashSet<>();
+    private final Set<Book> favBooks = new HashSet<>();
 
-    public User() {
-    }
-
-    public User(Integer id, String first_name, String last_name, String email) {
-        this.id = id;
+    public User(String first_name, String last_name, String email, String password, UserRole role) {
         this.first_name = first_name;
         this.last_name = last_name;
-        this.email = email;
+        this.login = email;
+        this.password = password;
+        this.role = role;
     }
 
-    public Integer getId() {
+
+    // Add to fav
+
+    public void addToFav(Book book){
+        favBooks.add(book);
+    }
+
+    public Book removeFromFav(Book book) {
+        if(favBooks.contains(book)){
+            favBooks.remove(book);
+            return book;
+        }
+        else{
+            return null;
+        }
+    }
+    // Getters
+
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -56,43 +83,68 @@ public class User implements Serializable {
         this.last_name = last_name;
     }
 
-    public String getEmail() {
-        return email;
+    public void setEmail(String email) {
+        this.login = email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 
     public Set<Book> getFavBooks() {
         return favBooks;
     }
 
-    public void addFavBooks(Book book){
-        favBooks.add(book);
+    // Spring Security
+    @JsonIgnore
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (this.role == UserRole.ADMIN) return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+        else{
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        }
     }
 
-    public Book removeFavBook(Book book){
-        try{
-            favBooks.remove(book);
-            return book;
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-        return null;
+    @JsonIgnore
+    @Override
+    public String getPassword() {
+        return password;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id);
+    public String getUsername() {
+        return login;
     }
 
+    @JsonIgnore
     @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

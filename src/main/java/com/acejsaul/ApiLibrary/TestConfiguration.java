@@ -3,6 +3,7 @@ package com.acejsaul.ApiLibrary;
 import com.acejsaul.ApiLibrary.entities.Author;
 import com.acejsaul.ApiLibrary.entities.Book;
 import com.acejsaul.ApiLibrary.entities.User;
+import com.acejsaul.ApiLibrary.entities.enums.UserRole;
 import com.acejsaul.ApiLibrary.repository.AuthorRepository;
 import com.acejsaul.ApiLibrary.repository.BookRepository;
 import com.acejsaul.ApiLibrary.repository.UserRepository;
@@ -54,14 +55,13 @@ public class TestConfiguration implements CommandLineRunner {
 
         // Users
 
-        User user1 = new User(null,
-                            "AceJ",
+        User user1 = new User("AceJ",
                             "Saul",
-                            "acejsaul@gmail.com");
-        user1.addFavBooks(book1);
-        user1.addFavBooks(book2);
-
-
+                            "acejsaul@gmail.com",
+                            "abcdefg",
+                            UserRole.ADMIN);
+        user1.addToFav(book1);
+        user1.addToFav(book2);
         userRepository.save(user1);
     }
 }
