@@ -1,8 +1,8 @@
 package com.acejsaul.ApiLibrary.controllers;
 
 import com.acejsaul.ApiLibrary.entities.User;
-import com.acejsaul.ApiLibrary.entities.enums.UserRole;
 import com.acejsaul.ApiLibrary.entities.records.AuthenticationDTO;
+import com.acejsaul.ApiLibrary.entities.records.LoginResponseDTO;
 import com.acejsaul.ApiLibrary.entities.records.RegisteredDTO;
 import com.acejsaul.ApiLibrary.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.acejsaul.ApiLibrary.infra.security.TokenService;
 
 @RestController
 @RequestMapping(value = "/auth")
@@ -24,13 +25,17 @@ public class AuthenticationController {
     private AuthenticationManager authenticationManager;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TokenService tokenService;
 
     @PostMapping(value = "/login")
     public ResponseEntity login(@RequestBody @Validated AuthenticationDTO userData){
         var usernamePassword = new UsernamePasswordAuthenticationToken(userData.login(), userData.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
-        return ResponseEntity.ok().build();
+        var token = tokenService.generateToken((User) auth.getPrincipal());
+
+        return ResponseEntity.ok(new LoginResponseDTO(token));
     }
 
     @PostMapping(value = "/register")
